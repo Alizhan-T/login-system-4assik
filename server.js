@@ -1,31 +1,55 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const session = require('express-session');
-require('dotenv').config();
+const dotenv = require('dotenv');
+const connectDB = require('./config/db');
+const authRoutes = require('./routes/authRoutes');
+const { protect } = require('./middleware/authMiddleware');
+const User = require('./models/User');
+
+// Загрузка переменных окружения
+dotenv.config();
+
+// Подключение к БД
+connectDB();
 
 const app = express();
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.log(err));
+// Настройки парсинга тела запроса
+app.use(express.json()); // Для JSON (Postman)
+app.use(express.urlencoded({ extended: true })); // Для HTML форм
 
-// Middleware для обработки JSON данных
-app.use(express.json());
+// Настройка статики и EJS
+app.set('view engine', 'ejs');
+app.use(express.static('public'));
 
-// Настройка сессий
+// Настройка сессий (Requirement 6)
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'secret',
     resave: false,
-    saveUninitialized: true,
-    cookie: { httpOnly: true, maxAge: 3600000 }  // 1 час
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 // 1 час
+    }
 }));
 
-// Основной маршрут
-app.get('/', (req, res) => {
-    res.send('Hello World');
+// --- API Routes (для задания) ---
+app.use('/api/auth', authRoutes);
+
+// --- UI Routes (для удобства/Optional Front-End) ---
+// Эти маршруты показывают HTML формы
+
+app.get('/', (req, res) => res.render('welcome'));
+
+app.get('/register', (req, res) => res.render('register'));
+
+app.get('/login', (req, res) => res.render('login'));
+
+// Защищенный профиль (UI версия)
+app.get('/profile', protect, async (req, res) => {
+    const user = await User.findById(req.session.userId);
+    res.render('dashboard', { user });
 });
 
-const port = process.env.PORT || 5000;
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

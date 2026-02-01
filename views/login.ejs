@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Вход</h1>
+    <form action="/api/auth/login" method="POST">
+        <label>Email</label>
+        <input type="email" name="email" required placeholder="name@example.com">
+
+        <label>Пароль</label>
+        <input type="password" name="password" required placeholder="Ваш пароль">
+
+        <button type="submit">Войти</button>
+    </form>
+    <a href="/register">Нет аккаунта? Зарегистрироваться</a>
+</div>
+</body>
+</html>
