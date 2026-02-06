@@ -2,25 +2,25 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Регистрация</title>
+    <title>Register</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <div class="container">
-    <h1>Регистрация</h1>
+    <h1>Sign up</h1>
     <form action="/api/auth/register" method="POST">
-        <label>Имя</label>
-        <input type="text" name="name" required placeholder="Ваше имя">
+        <label>Name</label>
+        <input type="text" name="name" required placeholder="Your name">
 
         <label>Email</label>
         <input type="email" name="email" required placeholder="name@example.com">
 
-        <label>Пароль</label>
-        <input type="password" name="password" required placeholder="Придумайте пароль">
+        <label>Password</label>
+        <input type="password" name="password" required placeholder="Creare a password">
 
-        <button type="submit">Зарегистрироваться</button>
+        <button type="submit">Sign Up</button>
     </form>
-    <a href="/login">Уже есть аккаунт? Войти</a>
+    <a href="/login">Already registered? Sign in</a>
 </div>
 </body>
 </html>

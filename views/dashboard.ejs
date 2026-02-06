@@ -2,21 +2,21 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Профиль</title>
+    <title>Profile</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <div class="container">
-    <h1>Личный кабинет</h1>
+    <h1>User account</h1>
     <div class="profile-card">
-        <p><strong>Имя:</strong> <%= user.name %></p>
+        <p><strong>Name</strong>:</strong> <%= user.name %></p>
         <p><strong>Email:</strong> <%= user.email %></p>
         <p><strong>ID:</strong> <%= user._id %></p>
-        <p><strong>Дата регистрации:</strong> <%= new Date(user.createdAt).toLocaleDateString() %></p>
+        <p><strong>Date of registration:</strong> <%= new Date(user.createdAt).toLocaleDateString() %></p>
     </div>
 
     <form action="/api/auth/logout" method="POST" style="margin-top: 20px;">
-        <button type="submit" style="background: #e74c3c;">Выйти</button>
+        <button type="submit" style="background: #e74c3c;">Log out</button>
     </form>
 </div>
 </body>

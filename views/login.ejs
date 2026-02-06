@@ -2,22 +2,22 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Вход</title>
+    <title>Login</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <div class="container">
-    <h1>Вход</h1>
+    <h1>Login</h1>
     <form action="/api/auth/login" method="POST">
         <label>Email</label>
         <input type="email" name="email" required placeholder="name@example.com">
 
-        <label>Пароль</label>
+        <label>Password</label>
         <input type="password" name="password" required placeholder="Ваш пароль">
 
-        <button type="submit">Войти</button>
+        <button type="submit">Sign in</button>
     </form>
-    <a href="/register">Нет аккаунта? Зарегистрироваться</a>
+    <a href="/register">No account yet? Register</a>
 </div>
 </body>
 </html>
