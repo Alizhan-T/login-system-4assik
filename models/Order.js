@@ -16,14 +16,14 @@ const orderSchema = new mongoose.Schema({
             title: String,
             price: Number
         }
-    ], // <--- Была ошибка здесь (zb]), теперь все чисто
+    ],
     totalPrice: {
         type: Number,
         required: true
     },
     status: {
         type: String,
-        enum: ['new', 'completed'],
+        enum: ['new', 'completed', 'canceled'],
         default: 'new'
     }
 }, { timestamps: true });

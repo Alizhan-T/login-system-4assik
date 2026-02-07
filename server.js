@@ -1,10 +1,10 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
-const cookieParser = require('cookie-parser'); // Не забудь: npm install cookie-parser
+const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 
-// Импорт моделей (нужны для отображения страниц)
+// Импорт моделей
 const Product = require('./models/Product');
 const User = require('./models/User');
 const Order = require('./models/Order');
@@ -43,7 +43,16 @@ const protectView = async (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = await User.findById(decoded.id).select('-password');
+        const user = await User.findById(decoded.id).select('-password');
+
+        // ИСПРАВЛЕНИЕ: Если токен есть, а пользователя в базе нет (например, удалили)
+        if (!user) {
+            console.log('Пользователь не найден, сбрасываем токен');
+            res.clearCookie('token');
+            return res.redirect('/login');
+        }
+
+        req.user = user;
         next();
     } catch (error) {
         console.error('Ошибка токена:', error.message);
@@ -54,29 +63,43 @@ const protectView = async (req, res, next) => {
 
 // === FRONTEND ROUTES (Страницы) ===
 
-// Главная
+// Главная (Приветствие)
 app.get('/', (req, res) => res.render('welcome'));
 
-// Вход и Регистрация (если уже вошел — кидаем в дешборд)
+// Вход и Регистрация
 app.get('/login', (req, res) => {
     if (req.cookies.token) return res.redirect('/dashboard');
     res.render('login');
 });
+
 app.get('/register', (req, res) => {
     if (req.cookies.token) return res.redirect('/dashboard');
     res.render('register');
 });
 
-// DASHBOARD (Витрина)
+// DASHBOARD (Главная страница рынка)
 app.get('/dashboard', protectView, async (req, res) => {
     try {
-        // Загружаем все товары и имя фермера для каждого
+        // 1. Загружаем все товары
         const products = await Product.find().populate('farmer', 'name');
+
+        // 2. Загружаем заказы для текущего пользователя
+        let myOrders = [];
+        if (req.user.role === 'buyer') {
+            // Покупатель видит свои заказы
+            myOrders = await Order.find({ buyer: req.user._id }).sort({ createdAt: -1 });
+        } else if (req.user.role === 'farmer') {
+            // Фермер видит все заказы (или можно отфильтровать только свои товары, если усложнять)
+            myOrders = await Order.find().populate('buyer', 'name').sort({ createdAt: -1 });
+        }
+
         res.render('dashboard', {
             user: req.user,
-            products: products
+            products: products,
+            orders: myOrders
         });
     } catch (err) {
+        console.error(err);
         res.status(500).send('Ошибка сервера');
     }
 });
@@ -86,11 +109,10 @@ app.get('/cart', protectView, (req, res) => {
     res.render('cart', { user: req.user });
 });
 
-// ЗАКАЗЫ (История)
+// СТРАНИЦА ЗАКАЗОВ (Если она еще нужна отдельно)
 app.get('/orders', protectView, async (req, res) => {
     try {
         let orders;
-        // Фермер видит все заказы, Покупатель — только свои
         if (req.user.role === 'farmer') {
             orders = await Order.find()
                 .populate('buyer', 'name email')
@@ -106,11 +128,11 @@ app.get('/orders', protectView, async (req, res) => {
     }
 });
 
-// Выход (удаляем куку)
+// Выход
 app.get('/logout', (req, res) => {
     res.clearCookie('token');
     res.redirect('/login');
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server started on port ${PORT}`));
