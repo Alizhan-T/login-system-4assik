@@ -1,5 +1,13 @@
-/* public/style.css */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+:root {
+    --primary: #2ecc71;       /* Свежий зеленый */
+    --dark-green: #27ae60;    /* Темный зеленый */
+    --accent: #e67e22;        /* Оранжевый (морковь) */
+    --bg-color: #f4fcf7;      /* Очень светлый мятный фон */
+    --text-dark: #2c3e50;
+    --white: #ffffff;
+}
 
 * {
     box-sizing: border-box;
@@ -8,118 +16,152 @@
 }
 
 body {
-    font-family: 'Roboto', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #333;
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-dark);
+    line-height: 1.6;
 }
 
+/* Навигация */
+nav {
+    background: var(--white);
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav h1 {
+    color: var(--dark-green);
+    font-weight: 600;
+}
+
+/* Контейнеры */
 .container {
-    background-color: #fff;
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    width: 100%;
+}
+
+/* Карточки и Формы */
+.auth-box {
+    background: var(--white);
+    padding: 2.5rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(46, 204, 113, 0.15);
     max-width: 400px;
+    margin: 3rem auto;
     text-align: center;
 }
 
-h1 {
+h1, h2 {
     margin-bottom: 1.5rem;
-    color: #333;
-    font-size: 2rem;
+    color: var(--dark-green);
 }
 
-form {
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-}
-
-label {
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #555;
-}
-
-input {
-    padding: 10px;
-    margin-bottom: 1.2rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 1rem;
+    border: 2px solid #eee;
+    border-radius: 8px;
     font-size: 1rem;
     transition: border-color 0.3s;
 }
 
-input:focus {
-    border-color: #764ba2;
+input:focus, select:focus, textarea:focus {
+    border-color: var(--primary);
     outline: none;
 }
 
-button {
-    background: #764ba2;
-    background: linear-gradient(to right, #667eea, #764ba2);
+/* Кнопки */
+button, .btn {
+    background-color: var(--primary);
     color: white;
-    padding: 12px;
+    padding: 12px 24px;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 1rem;
     cursor: pointer;
-    font-weight: bold;
-    transition: transform 0.1s, opacity 0.3s;
-}
-
-button:hover {
-    opacity: 0.9;
-}
-
-button:active {
-    transform: scale(0.98);
-}
-
-a {
-    color: #764ba2;
+    font-weight: 600;
+    transition: transform 0.2s, background 0.3s;
     text-decoration: none;
-    font-weight: 500;
     display: inline-block;
+}
+
+button:hover, .btn:hover {
+    background-color: var(--dark-green);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: var(--accent);
+}
+
+.btn-logout {
+    background-color: #e74c3c;
     margin-top: 1rem;
 }
 
-a:hover {
-    text-decoration: underline;
+/* Сетка товаров (Market Grid) */
+.market-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
 }
 
-/* Стили для dashboard */
-.profile-card p {
-    background: #f9f9f9;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    text-align: left;
-    border-left: 4px solid #764ba2;
+.product-card {
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s;
+    display: flex;
+    flex-direction: column;
 }
 
-ul {
-    list-style: none;
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(46, 204, 113, 0.2);
 }
 
-ul li {
-    margin-bottom: 10px;
+.product-img-placeholder {
+    height: 180px;
+    background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 3rem;
 }
 
-.btn-link {
+.product-info {
+    padding: 1.5rem;
+    flex-grow: 1;
+}
+
+.price-tag {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin-top: 0.5rem;
     display: block;
-    background: #f0f0f0;
-    padding: 10px;
-    border-radius: 5px;
-    color: #333;
-    transition: background 0.3s;
 }
 
-.btn-link:hover {
-    background: #e0e0e0;
+.farmer-badge {
+    background: #ecf0f1;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    margin-top: 1rem;
+    display: inline-block;
+}
+
+/* Ссылки */
+a {
+    color: var(--primary);
     text-decoration: none;
 }

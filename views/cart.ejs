@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Корзина</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<nav>
+    <h1>🛒 Ваша Корзина</h1>
+    <a href="/dashboard">← Назад к покупкам</a>
+</nav>
+
+<div class="container">
+    <div id="cart-items" class="cart-list">
+        <p>Загрузка...</p>
+    </div>
+
+    <div style="margin-top: 20px; text-align: right;">
+        <h3>Итого: <span id="total-price">0</span> ₸</h3>
+        <button onclick="checkout()" class="btn">✅ Оформить заказ</button>
+        <button onclick="clearCart()" class="btn" style="background: #e74c3c;">🗑 Очистить</button>
+    </div>
+</div>
+
+<script>
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const container = document.getElementById('cart-items');
+    const totalSpan = document.getElementById('total-price');
+
+    function renderCart() {
+        container.innerHTML = '';
+        let total = 0;
+
+        if (cart.length === 0) {
+            container.innerHTML = '<p>Корзина пуста. <a href="/dashboard">Идите покупать!</a></p>';
+            return;
+        }
+
+        cart.forEach((item, index) => {
+            total += item.price;
+            container.innerHTML += `
+                    <div style="background:white; padding:15px; margin-bottom:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <strong>${item.title}</strong>
+                            <br>
+                            <small>${item.price} ₸</small>
+                        </div>
+                        <button onclick="removeItem(${index})" style="background:#e74c3c; padding:5px 10px; font-size:0.8rem;">Удалить</button>
+                    </div>
+                `;
+        });
+        totalSpan.innerText = total;
+    }
+
+    function removeItem(index) {
+        cart.splice(index, 1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+    }
+
+    function clearCart() {
+        localStorage.removeItem('cart');
+        window.location.reload();
+    }
+
+    async function checkout() {
+        if(cart.length === 0) return alert('Корзина пуста!');
+
+        const token = localStorage.getItem('token');
+
+        const orderData = {
+            products: cart.map(item => ({
+                product: item.id, // ID товара
+                title: item.title,
+                price: item.price,
+                quantity: 1
+            })),
+            totalPrice: parseInt(totalSpan.innerText)
+        };
+
+        const res = await fetch('/api/orders', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(orderData)
+        });
+
+        if (res.ok) {
+            alert('Заказ успешно оформлен!');
+            localStorage.removeItem('cart');
+            window.location.href = '/orders';
+        } else {
+            alert('Ошибка при заказе');
+        }
+    }
+
+    renderCart();
+</script>
+</body>
+</html>

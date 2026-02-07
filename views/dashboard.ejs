@@ -2,22 +2,89 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmers Market | Витрина</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<div class="container">
-    <h1>User account</h1>
-    <div class="profile-card">
-        <p><strong>Name</strong>:</strong> <%= user.name %></p>
-        <p><strong>Email:</strong> <%= user.email %></p>
-        <p><strong>ID:</strong> <%= user._id %></p>
-        <p><strong>Date of registration:</strong> <%= new Date(user.createdAt).toLocaleDateString() %></p>
+
+<nav>
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <h1>🍏 Farmers Market</h1>
     </div>
 
-    <form action="/api/auth/logout" method="POST" style="margin-top: 20px;">
-        <button type="submit" style="background: #e74c3c;">Log out</button>
-    </form>
-</div>
-</body>
-</html>
+    <div style="display: flex; align-items: center; gap: 20px;">
+            <span style="color: #555;">
+                Привет, <strong><%= user.name %></strong>
+                <span class="role-badge" style="background: <%= user.role === 'farmer' ? '#e67e22' : '#2ecc71' %>; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">
+                    <%= user.role === 'farmer' ? 'Фермер' : 'Покупатель' %>
+                </span>
+            </span>
+
+        <a href="/orders">📋 Заказы</a>
+
+        <% if (user.role === 'buyer') { %>
+            <a href="/cart">🛒 Корзина (<span id="cart-count">0</span>)</a>
+        <% } %>
+
+        <button onclick="logout()" class="btn btn-logout" style="padding: 5px 15px; font-size: 0.9rem;">Выйти</button>
+    </div>
+</nav>
+
+<div class="container">
+
+    <% if (user.role === 'farmer') { %>
+        <div class="auth-box" style="margin: 0 auto 3rem auto; max-width: 600px; text-align: left;">
+            <h2 style="text-align: center;">➕ Выставить товар на продажу</h2>
+            <form id="addProductForm">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label>Название</label>
+                        <input type="text" id="title" placeholder="Например: Свежая морковь" required>
+                    </div>
+                    <div>
+                        <label>Цена (₸)</label>
+                        <input type="number" id="price" placeholder="500" required>
+                    </div>
+                </div>
+
+                <label>Категория</label>
+                <select id="category">
+                    <option value="vegetables">Овощи 🥦</option>
+                    <option value="fruits">Фрукты 🍎</option>
+                    <option value="dairy">Молочные продукты 🥛</option>
+                    <option value="meat">Мясо 🥩</option>
+                    <option value="other">Другое 📦</option>
+                </select>
+
+                <label>Описание</label>
+                <textarea id="description" rows="2" placeholder="Расскажите о продукте..." required></textarea>
+
+                <button type="submit" style="width: 100%;">Опубликовать</button>
+            </form>
+        </div>
+    <% } %>
+
+    <h2 style="margin-bottom: 20px;">Все товары на рынке</h2>
+
+    <div class="market-grid">
+        <% if (products.length > 0) { %>
+            <% products.forEach(product => { %>
+        <div class="product-card">
+            <div class="product-img-placeholder">
+                <% if(product.category === 'vegetables') { %> 🥦 <% } %>
+                <% if(product.category === 'fruits') { %> 🍎 <% } %>
+                <% if(product.category === 'dairy') { %> 🥛 <% } %>
+                <% if(product.category === 'meat') { %> 🥩 <% } %>
+                <% if(product.category === 'other') { %> 📦 <% } %>
+            </div>
+
+            <div class="product-info">
+                <h3><%= product.title %></h3>
+                <p style="color: #7f8c8d; font-size: 0.9rem; margin-bottom: 10px;">
+                    <%= product.description %>
+                </p>
+
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="price-tag"><%= product.price %> ₸</span>
+                    <span style="font-size: 0.
