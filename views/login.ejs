@@ -2,22 +2,49 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>Вход | Farmers Market</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <div class="container">
-    <h1>Login</h1>
-    <form action="/api/auth/login" method="POST">
-        <label>Email</label>
-        <input type="email" name="email" required placeholder="name@example.com">
+    <div class="auth-box">
+        <h2>🔐 Вход на рынок</h2>
+        <form id="loginForm">
+            <label>Email</label>
+            <input type="email" id="email" required placeholder="example@mail.com">
 
-        <label>Password</label>
-        <input type="password" name="password" required placeholder="Ваш пароль">
+            <label>Пароль</label>
+            <input type="password" id="password" required placeholder="Ваш пароль">
 
-        <button type="submit">Sign in</button>
-    </form>
-    <a href="/register">No account yet? Register</a>
+            <button type="submit">Войти</button>
+        </form>
+        <a href="/register">Нет аккаунта? Зарегистрироваться</a>
+    </div>
 </div>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            // Сохраняем токен в куки и переходим
+            document.cookie = `token=${data.token}; path=/; max-age=86400`;
+            localStorage.setItem('token', data.token);
+            window.location.href = '/dashboard';
+        } else {
+            alert(data.message || 'Ошибка входа');
+        }
+    });
+</script>
 </body>
 </html>

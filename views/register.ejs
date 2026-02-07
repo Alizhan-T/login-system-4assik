@@ -2,25 +2,62 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Register</title>
+    <title>Регистрация</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <div class="container">
-    <h1>Sign up</h1>
-    <form action="/api/auth/register" method="POST">
-        <label>Name</label>
-        <input type="text" name="name" required placeholder="Your name">
+    <div class="auth-box">
+        <h2>🌱 Регистрация</h2>
 
-        <label>Email</label>
-        <input type="email" name="email" required placeholder="name@example.com">
+        <form id="registerForm">
+            <label>Имя</label>
+            <input type="text" id="name" required placeholder="Ваше имя">
 
-        <label>Password</label>
-        <input type="password" name="password" required placeholder="Creare a password">
+            <label>Email</label>
+            <input type="email" id="email" required placeholder="email@example.com">
 
-        <button type="submit">Sign Up</button>
-    </form>
-    <a href="/login">Already registered? Sign in</a>
+            <label>Пароль</label>
+            <input type="password" id="password" required placeholder="Придумайте пароль">
+
+            <label>Кто вы?</label>
+            <select id="role">
+                <option value="buyer">Я покупатель 🛒</option>
+                <option value="farmer">Я фермер 👨‍🌾</option>
+            </select>
+
+            <button type="submit">Создать аккаунт</button>
+        </form>
+
+        <a href="/login">Уже есть аккаунт? Войти</a>
+    </div>
 </div>
+
+<script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const role = document.getElementById('role').value;
+
+        const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password, role })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            localStorage.setItem('token', data.token);
+            document.cookie = `token=${data.token}; path=/; max-age=86400`;
+            window.location.href = '/dashboard';
+        } else {
+            alert(data.message || 'Ошибка регистрации');
+        }
+    });
+</script>
 </body>
 </html>
