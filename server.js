@@ -4,12 +4,10 @@ const connectDB = require('./config/db');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 
-// Импорт моделей
 const Product = require('./models/Product');
 const User = require('./models/User');
 const Order = require('./models/Order');
 
-// Импорт роутов API
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
@@ -19,21 +17,16 @@ connectDB();
 
 const app = express();
 
-// === MIDDLEWARE ===
-app.use(express.json()); // Читаем JSON
-app.use(express.urlencoded({ extended: true })); // Читаем данные форм
-app.use(cookieParser()); // Читаем Куки
-app.use(express.static('public')); // Раздаем CSS и картинки
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
-// === API ROUTES (Для запросов) ===
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 
-
-// === FRONTEND MIDDLEWARE (Защита страниц) ===
-// Эта функция проверяет токен в куках браузера
 const protectView = async (req, res, next) => {
     const token = req.cookies.token;
 
@@ -45,9 +38,7 @@ const protectView = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findById(decoded.id).select('-password');
 
-        // ИСПРАВЛЕНИЕ: Если токен есть, а пользователя в базе нет (например, удалили)
         if (!user) {
-            console.log('Пользователь не найден, сбрасываем токен');
             res.clearCookie('token');
             return res.redirect('/login');
         }
@@ -55,18 +46,13 @@ const protectView = async (req, res, next) => {
         req.user = user;
         next();
     } catch (error) {
-        console.error('Ошибка токена:', error.message);
-        res.clearCookie('token'); // Если токен протух — удаляем
+        res.clearCookie('token');
         res.redirect('/login');
     }
 };
 
-// === FRONTEND ROUTES (Страницы) ===
-
-// Главная (Приветствие)
 app.get('/', (req, res) => res.render('welcome'));
 
-// Вход и Регистрация
 app.get('/login', (req, res) => {
     if (req.cookies.token) return res.redirect('/dashboard');
     res.render('login');
@@ -77,19 +63,14 @@ app.get('/register', (req, res) => {
     res.render('register');
 });
 
-// DASHBOARD (Главная страница рынка)
 app.get('/dashboard', protectView, async (req, res) => {
     try {
-        // 1. Загружаем все товары
         const products = await Product.find().populate('farmer', 'name');
 
-        // 2. Загружаем заказы для текущего пользователя
         let myOrders = [];
         if (req.user.role === 'buyer') {
-            // Покупатель видит свои заказы
             myOrders = await Order.find({ buyer: req.user._id }).sort({ createdAt: -1 });
         } else if (req.user.role === 'farmer') {
-            // Фермер видит все заказы (или можно отфильтровать только свои товары, если усложнять)
             myOrders = await Order.find().populate('buyer', 'name').sort({ createdAt: -1 });
         }
 
@@ -100,37 +81,16 @@ app.get('/dashboard', protectView, async (req, res) => {
         });
     } catch (err) {
         console.error(err);
-        res.status(500).send('Ошибка сервера');
+        res.status(500).send('Server Error');
     }
 });
 
-// КОРЗИНА
 app.get('/cart', protectView, (req, res) => {
     res.render('cart', { user: req.user });
 });
 
-// СТРАНИЦА ЗАКАЗОВ (Если она еще нужна отдельно)
-app.get('/orders', protectView, async (req, res) => {
-    try {
-        let orders;
-        if (req.user.role === 'farmer') {
-            orders = await Order.find()
-                .populate('buyer', 'name email')
-                .sort({ createdAt: -1 });
-        } else {
-            orders = await Order.find({ buyer: req.user._id })
-                .sort({ createdAt: -1 });
-        }
-
-        res.render('orders', { user: req.user, orders: orders });
-    } catch (err) {
-        res.status(500).send('Ошибка при загрузке заказов');
-    }
-});
-
-// Выход
 app.get('/logout', (req, res) => {
-    res.clearCookie('token');
+    res.clearCookie('token', { path: '/' });
     res.redirect('/login');
 });
 

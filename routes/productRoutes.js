@@ -1,66 +1,43 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
-const { protect } = require('../middleware/authMiddleware');
+// ВАЖНО: Добавляем checkRole в импорт
+const { protect, checkRole } = require('../middleware/authMiddleware');
 
-// Получение всех товаров
 router.get('/', async (req, res) => {
     try {
-        const products = await Product.find().populate('farmer', 'name email');
+        const products = await Product.find().populate('farmer', 'name');
         res.json(products);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ message: 'Server error' });
     }
 });
 
-// Добавление товара (Только для фермеров)
-router.post('/', protect, async (req, res) => {
-    // Дополнительная проверка, чтобы сервер не падал
-    if (!req.user) {
-        return res.status(401).json({ message: 'Пользователь не определен' });
-    }
-
-    if (req.user.role !== 'farmer') {
-        return res.status(403).json({ message: 'Только фермеры могут добавлять товары' });
-    }
-
-    const { title, description, price, category } = req.body;
+router.post('/', protect, checkRole('farmer'), async (req, res) => {
+    const { title, description, price, category, imageUrl } = req.body;
 
     try {
-        const product = new Product({
+        const product = await Product.create({
             title,
             description,
             price,
             category,
+            imageUrl: imageUrl || 'https://placehold.co/600x400?text=No+Image',
             farmer: req.user._id
         });
 
-        const createdProduct = await product.save();
-        res.status(201).json(createdProduct);
+        res.status(201).json(product);
     } catch (err) {
-        console.error(err); // Логируем ошибку в консоль сервера
-        res.status(400).json({ message: 'Ошибка при сохранении: ' + err.message });
+        res.status(500).json({ message: 'Error creating product' });
     }
 });
 
-// Удаление товара
-router.delete('/:id', protect, async (req, res) => {
+router.delete('/:id', protect, checkRole('farmer'), async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id);
-
-        if (!product) {
-            return res.status(404).json({ message: 'Товар не найден' });
-        }
-
-        // Проверка прав (удалить может только владелец)
-        if (product.farmer.toString() !== req.user._id.toString()) {
-            return res.status(401).json({ message: 'Нет прав на удаление этого товара' });
-        }
-
-        await Product.deleteOne({ _id: req.params.id });
-        res.json({ message: 'Товар удален' });
+        await Product.findOneAndDelete({ _id: req.params.id, farmer: req.user._id });
+        res.json({ message: 'Product removed' });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ message: 'Error deleting product' });
     }
 });
 

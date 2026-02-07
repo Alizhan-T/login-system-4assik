@@ -1,24 +1,24 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Вход | Farmers Market</title>
+    <title>Login | Farmers Market</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <div class="container">
     <div class="auth-box">
-        <h2>🔐 Вход на рынок</h2>
+        <h2>🔐 Market Login</h2>
         <form id="loginForm">
             <label>Email</label>
             <input type="email" id="email" required placeholder="example@mail.com">
 
-            <label>Пароль</label>
-            <input type="password" id="password" required placeholder="Ваш пароль">
+            <label>Password</label>
+            <input type="password" id="password" required placeholder="Your password">
 
-            <button type="submit">Войти</button>
+            <button type="submit">Sign In</button>
         </form>
-        <a href="/register">Нет аккаунта? Зарегистрироваться</a>
+        <a href="/register">No account? Register</a>
     </div>
 </div>
 
@@ -37,12 +37,11 @@
         const data = await res.json();
 
         if (res.ok) {
-            // Сохраняем токен в куки и переходим
             document.cookie = `token=${data.token}; path=/; max-age=86400`;
             localStorage.setItem('token', data.token);
             window.location.href = '/dashboard';
         } else {
-            alert(data.message || 'Ошибка входа');
+            alert(data.message || 'Login failed');
         }
     });
 </script>

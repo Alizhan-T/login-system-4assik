@@ -13,6 +13,11 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    imageUrl: {
+        type: String,
+        required: false,
+        default: ''
+    },
     category: {
         type: String,
         enum: ['vegetables', 'fruits', 'dairy', 'meat', 'other'],

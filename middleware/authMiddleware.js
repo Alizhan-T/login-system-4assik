@@ -12,21 +12,30 @@ const protect = async (req, res, next) => {
 
             req.user = await User.findById(decoded.id).select('-password');
 
-            // ВАЖНОЕ ИСПРАВЛЕНИЕ: Если токен валиден, но пользователя нет в базе
             if (!req.user) {
-                return res.status(401).json({ message: 'Пользователь не найден. Выйдите и войдите снова.' });
+                return res.status(401).json({ message: 'User not found' });
             }
 
             next();
         } catch (error) {
-            console.error('Ошибка авторизации:', error.message);
-            res.status(401).json({ message: 'Не авторизован, токен неверный' });
+            console.error(error);
+            res.status(401).json({ message: 'Not authorized, token failed' });
         }
     }
 
     if (!token) {
-        res.status(401).json({ message: 'Не авторизован, нет токена' });
+        res.status(401).json({ message: 'Not authorized, no token' });
     }
 };
 
-module.exports = { protect };
+const checkRole = (role) => {
+    return (req, res, next) => {
+        if (req.user && req.user.role === role) {
+            next();
+        } else {
+            res.status(403).json({ message: 'Not authorized as ' + role });
+        }
+    };
+};
+
+module.exports = { protect, checkRole };

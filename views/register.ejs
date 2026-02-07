@@ -1,35 +1,35 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Регистрация</title>
+    <title>Register</title>
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <div class="container">
     <div class="auth-box">
-        <h2>🌱 Регистрация</h2>
+        <h2>🌱 Register</h2>
 
         <form id="registerForm">
-            <label>Имя</label>
-            <input type="text" id="name" required placeholder="Ваше имя">
+            <label>Name</label>
+            <input type="text" id="name" required placeholder="Your Name">
 
             <label>Email</label>
             <input type="email" id="email" required placeholder="email@example.com">
 
-            <label>Пароль</label>
-            <input type="password" id="password" required placeholder="Придумайте пароль">
+            <label>Password</label>
+            <input type="password" id="password" required placeholder="Create a password">
 
-            <label>Кто вы?</label>
+            <label>Who are you?</label>
             <select id="role">
-                <option value="buyer">Я покупатель 🛒</option>
-                <option value="farmer">Я фермер 👨‍🌾</option>
+                <option value="buyer">I am a Buyer 🛒</option>
+                <option value="farmer">I am a Farmer 👨‍🌾</option>
             </select>
 
-            <button type="submit">Создать аккаунт</button>
+            <button type="submit">Create Account</button>
         </form>
 
-        <a href="/login">Уже есть аккаунт? Войти</a>
+        <a href="/login">Already have an account? Sign In</a>
     </div>
 </div>
 
@@ -55,7 +55,7 @@
             document.cookie = `token=${data.token}; path=/; max-age=86400`;
             window.location.href = '/dashboard';
         } else {
-            alert(data.message || 'Ошибка регистрации');
+            alert(data.message || 'Registration failed');
         }
     });
 </script>
