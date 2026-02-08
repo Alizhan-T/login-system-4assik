@@ -3,10 +3,7 @@ const router = express.Router();
 const Order = require('../models/Order');
 const { protect } = require('../middleware/authMiddleware');
 
-// Создание заказа (без изменений, код выше)
 router.post('/', protect, async (req, res) => {
-    // ... (ваш старый код создания заказа) ...
-    // ВАЖНО: Убедитесь, что тут используется правильный расчет цены, как мы обсуждали ранее
     const { products, totalPrice } = req.body;
     try {
         const order = new Order({
@@ -21,22 +18,18 @@ router.post('/', protect, async (req, res) => {
     }
 });
 
-// === НОВЫЕ РОУТЫ ===
-
-// 1. Отмена заказа (для Покупателя)
 router.put('/:id/cancel', protect, async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
 
-        if (!order) return res.status(404).json({ message: 'Заказ не найден' });
+        if (!order) return res.status(404).json({ message: 'Order not found' });
 
-        // Проверяем, что это заказ текущего пользователя
         if (order.buyer.toString() !== req.user._id.toString()) {
-            return res.status(401).json({ message: 'Нельзя отменить чужой заказ' });
+            return res.status(401).json({ message: 'Not authorized to cancel this order' });
         }
 
         if (order.status !== 'new') {
-            return res.status(400).json({ message: 'Можно отменить только новый заказ' });
+            return res.status(400).json({ message: 'Only new orders can be canceled' });
         }
 
         order.status = 'canceled';
@@ -47,16 +40,14 @@ router.put('/:id/cancel', protect, async (req, res) => {
     }
 });
 
-// 2. Смена статуса на "Выполнено" (для Фермера)
 router.put('/:id/complete', protect, async (req, res) => {
     try {
-        // Проверка на фермера
         if (req.user.role !== 'farmer') {
-            return res.status(403).json({ message: 'Только фермер может завершать заказы' });
+            return res.status(403).json({ message: 'Only farmers can complete orders' });
         }
 
         const order = await Order.findById(req.params.id);
-        if (!order) return res.status(404).json({ message: 'Заказ не найден' });
+        if (!order) return res.status(404).json({ message: 'Order not found' });
 
         order.status = 'completed';
         await order.save();

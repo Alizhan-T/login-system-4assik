@@ -11,6 +11,7 @@ const Order = require('./models/Order');
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 dotenv.config();
 connectDB();
@@ -26,6 +27,7 @@ app.set('view engine', 'ejs');
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/users', userRoutes);
 
 const protectView = async (req, res, next) => {
     const token = req.cookies.token;
@@ -92,6 +94,17 @@ app.get('/cart', protectView, (req, res) => {
 app.get('/logout', (req, res) => {
     res.clearCookie('token', { path: '/' });
     res.redirect('/login');
+});
+
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+
+    const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+
+    res.status(statusCode).json({
+        message: err.message || 'Something went wrong!',
+        stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+    });
 });
 
 const PORT = process.env.PORT || 3000;
